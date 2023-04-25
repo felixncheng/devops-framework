@@ -16,8 +16,8 @@ jobs:
           echo "VERSION_FILE=$version_file" >> $GITHUB_ENV
       - name: Setup git configuration
         run: |
-          git config user.name "BkRepo Project Bot"
-          git config user.email "bkrepo-project-bot@users.noreply.github.com"
+          git config user.name "DevOps Project Bot"
+          git config user.email "devops-project-bot@users.noreply.github.com"
       - name: Create release branch
         run: git checkout -b release-${{ env.RELEASE_VERSION }}
       - name: Version Bump
