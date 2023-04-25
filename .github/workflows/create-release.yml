@@ -29,8 +29,8 @@ jobs:
           git add ${{ env.VERSION_FILE }}
           git commit --message "Prepare release ${{ env.RELEASE_VERSION }}"
           echo "::set-output name=commit::$(git rev-parse HEAD)"
-#      - name: Push new branch
-#        run: git push origin release-${{ env.RELEASE_VERSION }}
+      - name: Push new branch
+        run: git push origin release-${{ env.RELEASE_VERSION }}
       - name: Create pull request into master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,6 +41,6 @@ jobs:
           ${{ github.run_id }} \
           ${{ steps.commit-version-file.outputs.commit }} | \
           gh pr create -B master -H release-${{ env.RELEASE_VERSION }} \
-          --title 'Release version ${{ github.event.inputs.versionName }}' \
+          --title 'Release version ${{ env.RELEASE_VERSION }}' \
           --reviewer ${{ github.actor }} \
-          --body=-   
+          --body-file -
