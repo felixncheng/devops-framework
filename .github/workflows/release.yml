@@ -10,7 +10,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     # only merged pull requests that begin with 'release-' must trigger this job
-    if: github.event.pull_request.merged == true && (startsWith(github.event.pull_request.head.ref, 'release-')
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-')
     steps:
       - name: Get version
         if: startsWith(github.event.pull_request.head.ref, 'release-')
