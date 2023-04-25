@@ -33,9 +33,9 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Generate changelog
         run: |
-          docker run -it --rm -v "$(pwd)":/generated-changelog springio/github-changelog-generator:0.0.8  \
+          docker run --rm -v "$(pwd)/.github/tasks":/generated-changelog springio/github-changelog-generator:0.0.8  \
           java -jar github-changelog-generator.jar \
-          --spring.config.location=.github/tasks/changelog-generator.yml \
+          --spring.config.location=/generated-changelog/changelog-generator.yml \
           --github.username=${{ github.actor }} \
           --github.password=${{ secrets.GITHUB_TOKEN }} \
           ${{ env.RELEASE_VERSION }} \
