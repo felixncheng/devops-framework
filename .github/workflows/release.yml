@@ -35,17 +35,14 @@ jobs:
         id: generate-changelog
         run: |
           CONFIG_DIR=$(pwd)/.github/config
-          ls $CONFIG_DIR
-          echo "==="
           docker run --rm -v $CONFIG_DIR:/generated-changelog springio/github-changelog-generator:0.0.8 ls /generated-changelog 
           docker run --rm -v $CONFIG_DIR:/generated-changelog springio/github-changelog-generator:0.0.8  \
-          java -jar github-changelog-generator.jar \
+          java -jar -Dfile.encoding=utf-8 github-changelog-generator.jar \
           --spring.config.location=/generated-changelog/changelog-generator.yml \
           --github.username=${{ github.actor }} \
           --github.password=${{ secrets.GITHUB_TOKEN }} \
           ${{ env.RELEASE_VERSION }} \
           /generated-changelog/changelog.md
-          ls $CONFIG_DIR
           echo "::set-output name=changelog_path::$CONFIG_DIR/changelog.md"
       - name: Create Release
         id: create_release
