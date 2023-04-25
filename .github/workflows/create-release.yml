@@ -39,7 +39,8 @@ jobs:
           ${{ github.actor }} \
           ${{ github.repository }} \
           ${{ github.run_id }} \
-          ${{ steps.commit-version-file.commit }} | \
-          gh pr create -B master -H release-${{ env.RELEASE_VERSION }} --title 'Release version ${{ github.event.inputs.versionName }}'
-          --reviewer ${{ github.actor }}
+          ${{ steps.commit-version-file.outputs.commit }} | \
+          gh pr create -B master -H release-${{ env.RELEASE_VERSION }} \
+          --title 'Release version ${{ github.event.inputs.versionName }}' \
+          --reviewer ${{ github.actor }} \
           --body-   
