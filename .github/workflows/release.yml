@@ -32,14 +32,21 @@ jobs:
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
       - name: Generate changelog
+        id: generate-changelog
         run: |
-          docker run --rm -v "$(pwd)/.github/tasks":/generated-changelog springio/github-changelog-generator:0.0.8  \
+          CONFIG_DIR=$(pwd)/.github/config
+          ls $CONFIG_DIR
+          echo "==="
+          docker run --rm -v $CONFIG_DIR:/generated-changelog springio/github-changelog-generator:0.0.8 ls /generated-changelog 
+          docker run --rm -v $CONFIG_DIR:/generated-changelog springio/github-changelog-generator:0.0.8  \
           java -jar github-changelog-generator.jar \
           --spring.config.location=/generated-changelog/changelog-generator.yml \
           --github.username=${{ github.actor }} \
           --github.password=${{ secrets.GITHUB_TOKEN }} \
           ${{ env.RELEASE_VERSION }} \
           /generated-changelog/changelog.md
+          ls $CONFIG_DIR
+          echo "::set-output name=changelog_path::$CONFIG_DIR/changelog.md"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -48,6 +55,6 @@ jobs:
         with:
           tag_name: v${{ env.RELEASE_VERSION }}
           release_name: v${{ env.RELEASE_VERSION }}
-          body_path: changelog.md
+          body_path: ${{ steps.generate-changelog.outputs.changelog_path }}
           draft: true
           prerelease: true
