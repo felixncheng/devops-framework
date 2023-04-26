@@ -1,8 +1,6 @@
-# Releases only from release-** branch
+# Releases can only from release-** branch
 name: Release
-
 on:
-
   # Releases can only be triggered via the action tab
   workflow_dispatch:
 

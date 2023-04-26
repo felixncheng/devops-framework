@@ -40,10 +40,10 @@ jobs:
       - name: Prepare next development iteration on master
         if: $NEXT_VERSION != ''
       - name: Create develop branch
-        run: git checkout -b develop-$NEXT_VERSION
+        run: git checkout -b develop-$NEXT_VERSION origin/master
       - name: Version Bump
         run: |
-          sed -i 's/${{ env.RELEASE_VERSION }}-SNAPSHOT/$NEXT_VERSION/g' ${{ env.VERSION_FILE }}
+          sed -i 's/${{ env.RELEASE_VERSION }}/$NEXT_VERSION/g' ${{ env.VERSION_FILE }}
       - name: Commit version file -- develop branch
         id: commit-version-file-master
         run: |
