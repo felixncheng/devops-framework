@@ -49,7 +49,7 @@ jobs:
   create-develop:
       runs-on: ubuntu-latest
       needs: prepare-create
-      if: ${{ github.event.inputs.next_version }} != ''
+      if: github.event.inputs.next_version != ''
       env:
         RELEASE_VERSION: ${{ needs.prepare-create.outputs.RELEASE_VERSION }}
         NEXT_VERSION: ${{ github.event.inputs.next_version }}
