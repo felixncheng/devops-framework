@@ -85,6 +85,6 @@ jobs:
             ${{ github.run_id }} \
             ${{ steps.commit-version-file-master.outputs.commit }} | \
             gh pr create -B master -H develop-${{ env.NEXT_VERSION }} \
-            --title 'Next development iteration version ${{ env.NEXT_VERSION }}-SNAPSHOT' \
+            --title 'Update version ${{ env.NEXT_VERSION }}-SNAPSHOT' \
             --reviewer ${{ github.actor }} \
             --body-file -
