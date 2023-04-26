@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Get version
         id: get-version
-        if: startsWith(github.event.pull_request.head.ref, 'release-')
         run: |
           branch_name="${{ github.event.pull_request.head.ref }}"
           version=${branch_name#release-}
