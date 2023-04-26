@@ -10,7 +10,7 @@ on:
 jobs:
   prepare-create:
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name }} == 'master' || startsWith(${{ github.ref_name }},'hotfix-')
+    if: ${{ github.ref_name }} == 'master'
     outputs:
       RELEASE_VERSION: ${{ steps.get-version.outputs.RELEASE_VERSION }}
       VERSION_FILE: ${{ steps.get-version.outputs.VERSION_FILE }}
@@ -20,7 +20,6 @@ jobs:
         id: get-version
         run: |
           echo ${{ github.ref_name }}
-          echo startsWith(${{ github.ref_name }},'hotfix-')
           version_file=buildSrc/src/main/kotlin/Versions.kt
           version=$(awk '/Version =/ {print $5}' $version_file |sed 's/\"//g' |sed 's/-SNAPSHOT//g')
           echo "RELEASE_VERSION=$version" >> $GITHUB_OUTPUT
