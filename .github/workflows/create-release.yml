@@ -28,6 +28,7 @@ jobs:
     needs: prepare-create
     env:
       RELEASE_VERSION: ${{ needs.prepare-create.outputs.RELEASE_VERSION }}
+      VERSION_FILE: ${{ needs.prepare-create.outputs.VERSION_FILE }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup git configuration
@@ -52,6 +53,7 @@ jobs:
       env:
         RELEASE_VERSION: ${{ needs.prepare-create.outputs.RELEASE_VERSION }}
         NEXT_VERSION: ${{ github.event.inputs.next_version }}
+        VERSION_FILE: ${{ needs.prepare-create.outputs.VERSION_FILE }}
       steps:
         - uses: actions/checkout@v2
           with:
@@ -61,18 +63,18 @@ jobs:
             git config user.name "DevOps Project Bot"
             git config user.email "devops-project-bot@users.noreply.github.com"
         - name: Create develop branch
-          run: git checkout -b develop-$NEXT_VERSION
+          run: git checkout -b develop-${{ env.NEXT_VERSION }}
         - name: Version Bump
           run: |
-            sed -i 's/${{ env.RELEASE_VERSION }}/$NEXT_VERSION/g' ${{ env.VERSION_FILE }}
+            sed -i 's/${{ env.RELEASE_VERSION }}/${{ env.NEXT_VERSION }}/g' ${{ env.VERSION_FILE }}
         - name: Commit version file -- develop branch
           id: commit-version-file-master
           run: |
             git add ${{ env.VERSION_FILE }}
-            git commit --message "Prepare for next development iteration $NEXT_VERSION"
+            git commit --message "Prepare for next development iteration ${{ env.NEXT_VERSION }}"
             echo "::set-output name=commit::$(git rev-parse HEAD)"
         - name: Push new develop branch
-          run: git push origin develop-$NEXT_VERSION
+          run: git push origin develop-${{ env.NEXT_VERSION }}
         - name: Create pull request into master
           run: |
             ./.github/scripts/create_pr_body.sh \
@@ -80,7 +82,7 @@ jobs:
             ${{ github.repository }} \
             ${{ github.run_id }} \
             ${{ steps.commit-version-file-master.outputs.commit }} | \
-            gh pr create -B master -H develop-$NEXT_VERSION \
-            --title 'Next development iteration version $NEXT_VERSION' \
+            gh pr create -B master -H develop-${{ env.NEXT_VERSION }} \
+            --title 'Next development iteration version ${{ env.NEXT_VERSION }}-SNAPSHOT' \
             --reviewer ${{ github.actor }} \
             --body-file -
