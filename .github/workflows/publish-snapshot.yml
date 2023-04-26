@@ -3,11 +3,12 @@ name: Build and Publish snapshot package
 on:
   push:
     branches:
-      - develop
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: !startsWith(github.head_ref, 'releases-')
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 8

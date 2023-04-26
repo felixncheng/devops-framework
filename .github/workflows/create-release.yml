@@ -1,11 +1,19 @@
-
+# Create release branch from master or hotfix
 name: Create release branch
 on:
   workflow_dispatch:
+    inputs:
+      next_version:
+        description: 'Version of next development iteration on master (ie 1.1.0)'
+        required: false
+
+env:
+  NEXT_VERSION: ${{ github.event.inputs.next_version }}
 
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    if: ${{ github.ref_name }} == 'master' || startsWith(${{ github.ref_name }},'hotfix-')
     steps:
       - uses: actions/checkout@v2
       - name: Get version
@@ -23,24 +31,35 @@ jobs:
       - name: Version Bump
         run: |
           sed -i 's/${{ env.RELEASE_VERSION }}-SNAPSHOT/${{ env.RELEASE_VERSION }}/g' ${{ env.VERSION_FILE }}
-      - name: Commit version file
-        id: commit-version-file
+      - name: Commit version file -- release branch
         run: |
           git add ${{ env.VERSION_FILE }}
           git commit --message "Prepare release ${{ env.RELEASE_VERSION }}"
-          echo "::set-output name=commit::$(git rev-parse HEAD)"
-      - name: Push new branch
+      - name: Push new release branch
         run: git push origin release-${{ env.RELEASE_VERSION }}
+      - name: Prepare next development iteration on master
+        if: $NEXT_VERSION != ''
+      - name: Create develop branch
+        run: git checkout -b develop-$NEXT_VERSION
+      - name: Version Bump
+        run: |
+          sed -i 's/${{ env.RELEASE_VERSION }}-SNAPSHOT/$NEXT_VERSION/g' ${{ env.VERSION_FILE }}
+      - name: Commit version file -- develop branch
+        id: commit-version-file-master
+        run: |
+          git add ${{ env.VERSION_FILE }}
+          git commit --message "Prepare for next development iteration $NEXT_VERSION"
+          echo "::set-output name=commit::$(git rev-parse HEAD)"
+      - name: Push new develop branch
+        run: git push origin develop-$NEXT_VERSION
       - name: Create pull request into master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./.github/scripts/create_pr_body.sh \
           ${{ github.actor }} \
           ${{ github.repository }} \
           ${{ github.run_id }} \
-          ${{ steps.commit-version-file.outputs.commit }} | \
-          gh pr create -B master -H release-${{ env.RELEASE_VERSION }} \
-          --title 'Release version ${{ env.RELEASE_VERSION }}' \
+          ${{ steps.commit-version-file-master.outputs.commit }} | \
+          gh pr create -B master -H develop-$NEXT_VERSION \
+          --title 'Next development iteration version $NEXT_VERSION' \
           --reviewer ${{ github.actor }} \
           --body-file -
