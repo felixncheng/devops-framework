@@ -10,7 +10,7 @@ on:
 jobs:
   prepare-create:
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name }} == 'master'
+    if: github.ref_name == 'master'
     outputs:
       RELEASE_VERSION: ${{ steps.get-version.outputs.RELEASE_VERSION }}
       VERSION_FILE: ${{ steps.get-version.outputs.VERSION_FILE }}
