@@ -20,6 +20,7 @@ jobs:
         id: get-version
         run: |
           echo ${{ github.ref_name }}
+          echo startsWith(${{ github.ref_name }},'hotfix-')
           version_file=buildSrc/src/main/kotlin/Versions.kt
           version=$(awk '/Version =/ {print $5}' $version_file |sed 's/\"//g' |sed 's/-SNAPSHOT//g')
           echo "RELEASE_VERSION=$version" >> $GITHUB_OUTPUT
