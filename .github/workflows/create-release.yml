@@ -10,7 +10,6 @@ on:
 jobs:
   prepare-create:
     runs-on: ubuntu-latest
-    if: github.ref_name == 'master' || startsWith(github.ref_name,'hotfix-')
     outputs:
       RELEASE_VERSION: ${{ steps.get-version.outputs.RELEASE_VERSION }}
       VERSION_FILE: ${{ steps.get-version.outputs.VERSION_FILE }}
