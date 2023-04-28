@@ -69,14 +69,17 @@ jobs:
         - name: Create develop branch
           run: git checkout -b develop-${{ env.NEXT_VERSION }}
         - name: Version Bump
+          id: version-bump
           run: |
             sed -i 's/${{ env.RELEASE_VERSION }}/${{ env.NEXT_VERSION }}/g' ${{ env.VERSION_FILE }}
             sample_version_file=devops-boot-sample/build.gradle.kts
             sed -i 's/${{ env.RELEASE_VERSION }}/${{ env.NEXT_VERSION }}/g' $sample_version_file
+            echo "::set-output name=SAMPLE_VERSION_FILE::$sample_version_file"
         - name: Commit version file -- develop branch
           id: commit-version-file-master
           run: |
             git add ${{ env.VERSION_FILE }}
+            git add ${{ steps.version-bump.outputs.SAMPLE_VERSION_FILE }}
             git commit --message "Prepare for next development iteration ${{ env.NEXT_VERSION }}"
             echo "::set-output name=commit::$(git rev-parse HEAD)"
         - name: Push new develop branch
