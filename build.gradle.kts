@@ -7,7 +7,7 @@ plugins {
     kotlin("kapt") version Versions.Kotlin apply false
     kotlin("plugin.spring") version Versions.Kotlin apply false
     id("io.spring.dependency-management") version Versions.DependencyManagement apply false
-    id("de.marcphilipp.nexus-publish") version Versions.NexusPublish apply false
+    id("de.marcphilipp.nexuss-publish") version Versions.NexusPublish apply false
     id("io.codearte.nexus-staging") version Versions.NexusStaging
 }
 
