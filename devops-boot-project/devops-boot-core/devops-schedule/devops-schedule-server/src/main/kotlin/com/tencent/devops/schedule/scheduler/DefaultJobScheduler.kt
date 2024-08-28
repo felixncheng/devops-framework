@@ -9,6 +9,7 @@ import com.tencent.devops.schedule.enums.TriggerCodeEnum
 import com.tencent.devops.schedule.enums.TriggerTypeEnum
 import com.tencent.devops.schedule.manager.JobManager
 import com.tencent.devops.schedule.manager.WorkerManager
+import com.tencent.devops.schedule.metrics.ScheduleServerMetrics
 import com.tencent.devops.schedule.pojo.job.JobInfo
 import com.tencent.devops.schedule.pojo.log.JobLog
 import com.tencent.devops.schedule.pojo.trigger.TriggerParam
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.InitializingBean
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -54,7 +56,7 @@ class DefaultJobScheduler(
         // TODO 初版实现不去主动监控任务状态丢失的任务，触发成功则表示执行成功，执行结果由worker上报
         // jobLostMonitor = JobLostMonitor(this).apply { start() }
         workerStatusMonitor = WorkerStatusMonitor(this).apply { start() }
-        logger.info("start upjob scheduler success")
+        logger.info("startup job scheduler success")
     }
 
     override fun stop() {
@@ -144,6 +146,9 @@ class DefaultJobScheduler(
             triggerType = triggerType.code(),
             triggerTime = LocalDateTime.now(),
         )
+        val actual = jobLog.triggerTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ScheduleServerMetrics.recordTrigger(actual - job.lastTriggerTime, TimeUnit.MILLISECONDS)
+
         val logId = jobManager.addJobLog(jobLog)
         // 2. 构造trigger param
         val triggerParam = TriggerParam(
