@@ -172,6 +172,7 @@ class DefaultJobScheduler(
         }
         // 4. 触发任务
         val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        logger.debug("trigger info -- now: $now, expected: ${job.nextTriggerTime} ,latency: ${now - job.nextTriggerTime}")
         ScheduleServerMetrics.recordTrigger(now - job.nextTriggerTime, TimeUnit.MILLISECONDS)
         try {
             require(!address.isNullOrBlank()) { "没有可用的worker地址" }
