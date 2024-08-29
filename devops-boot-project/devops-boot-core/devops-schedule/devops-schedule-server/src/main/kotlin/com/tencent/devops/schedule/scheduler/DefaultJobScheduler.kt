@@ -89,12 +89,12 @@ class DefaultJobScheduler(
         shardingParam: String?,
     ) {
         logger.debug("prepare trigger job[$jobId]")
+        val job = jobManager.findJobById(jobId) ?: run {
+            logger.warn("trigger job[$jobId] failed: job not exists.")
+            return
+        }
         triggerThreadPool.execute {
             try {
-                val job = jobManager.findJobById(jobId) ?: run {
-                    logger.warn("trigger job[$jobId] failed: job not exists.")
-                    return@execute
-                }
                 jobParam?.let { job.jobParam = it }
                 val finalRetryCount = retryCount ?: job.maxRetryCount
                 val group = workerManager.findGroupById(job.groupId) ?: run {
@@ -146,8 +146,6 @@ class DefaultJobScheduler(
             triggerType = triggerType.code(),
             triggerTime = LocalDateTime.now(),
         )
-        val actual = jobLog.triggerTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        ScheduleServerMetrics.recordTrigger(actual - job.lastTriggerTime, TimeUnit.MILLISECONDS)
 
         val logId = jobManager.addJobLog(jobLog)
         // 2. 构造trigger param
@@ -173,6 +171,8 @@ class DefaultJobScheduler(
             else -> Routes.route(routeStrategy, triggerParam, group.registryList)
         }
         // 4. 触发任务
+        val now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        ScheduleServerMetrics.recordTrigger(now - job.nextTriggerTime, TimeUnit.MILLISECONDS)
         try {
             require(!address.isNullOrBlank()) { "没有可用的worker地址" }
             triggerParam.workerAddress = address
