@@ -5,11 +5,13 @@ import com.tencent.devops.schedule.manager.DefaultJobManager
 import com.tencent.devops.schedule.manager.DefaultWorkerManager
 import com.tencent.devops.schedule.manager.JobManager
 import com.tencent.devops.schedule.manager.WorkerManager
+import com.tencent.devops.schedule.metrics.ScheduleServerMetricsAutoConfiguration
 import com.tencent.devops.schedule.provider.JobProvider
 import com.tencent.devops.schedule.provider.LockProvider
 import com.tencent.devops.schedule.provider.WorkerProvider
 import com.tencent.devops.schedule.scheduler.DefaultJobScheduler
 import com.tencent.devops.schedule.scheduler.JobScheduler
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -18,6 +20,7 @@ import org.springframework.context.annotation.Import
 
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(ScheduleServerProperties::class)
+@AutoConfigureAfter(ScheduleServerMetricsAutoConfiguration::class)
 @Import(ScheduleServerWebConfiguration::class)
 class ScheduleServerAutoConfiguration {
 
@@ -28,7 +31,7 @@ class ScheduleServerAutoConfiguration {
         workerManager: WorkerManager,
         lockProvider: LockProvider,
         scheduleServerProperties: ScheduleServerProperties,
-        workerRpcClient: WorkerRpcClient
+        workerRpcClient: WorkerRpcClient,
     ): JobScheduler {
         return DefaultJobScheduler(jobManager, workerManager, lockProvider, scheduleServerProperties, workerRpcClient)
     }
@@ -44,5 +47,4 @@ class ScheduleServerAutoConfiguration {
     fun workerManager(workerProvider: WorkerProvider): WorkerManager {
         return DefaultWorkerManager(workerProvider)
     }
-
 }
