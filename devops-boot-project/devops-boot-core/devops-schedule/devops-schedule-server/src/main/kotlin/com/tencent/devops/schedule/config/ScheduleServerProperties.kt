@@ -20,9 +20,17 @@ data class ScheduleServerProperties(
     var contextPath: String = "/",
 
     /**
-     * 任务触发线程池大小
+     * 任务触发线程池最小工作线程数
+     * */
+    var minSpareThreads: Int = 10,
+    /**
+     * 任务触发线程池最大工作线程数
      */
-    var maxTriggerPoolSize: Int = 100,
+    var maxThreads: Int = 200,
+    /**
+     * 任务触发线程池队列大小
+     * */
+    var triggerQueueSize: Int = 8192,
 
     /**
      * UI配置
@@ -32,7 +40,7 @@ data class ScheduleServerProperties(
     /**
      * 认证配置
      */
-    var auth: ScheduleServerAuthProperties = ScheduleServerAuthProperties()
+    var auth: ScheduleServerAuthProperties = ScheduleServerAuthProperties(),
 ) {
     companion object {
         const val PREFIX = "devops.schedule.server"
@@ -42,7 +50,7 @@ data class ScheduleServerProperties(
         /**
          * 是否开启ui界面
          */
-        var enabled: Boolean = true
+        var enabled: Boolean = true,
     )
 
     class ScheduleServerAuthProperties(

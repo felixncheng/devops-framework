@@ -51,6 +51,7 @@ class DefaultJobScheduler(
 
     override fun start() {
         triggerThreadPool = createThreadPool()
+        ScheduleServerMetrics.monitorTriggerPool(triggerThreadPool)
         jobTodoMonitor = JobTodoMonitor(this, lockProvider).apply { start() }
         jobRetryMonitor = JobRetryMonitor(this).apply { start() }
         // TODO 初版实现不去主动监控任务状态丢失的任务，触发成功则表示执行成功，执行结果由worker上报
@@ -202,14 +203,16 @@ class DefaultJobScheduler(
      * 创建任务trigger调度线程池
      */
     private fun createThreadPool(): ThreadPoolExecutor {
-        return ThreadPoolExecutor(
-            10,
-            scheduleServerProperties.maxTriggerPoolSize,
-            60L,
-            TimeUnit.SECONDS,
-            LinkedBlockingQueue(1000),
-        ) { runnable ->
-            Thread(runnable, "job-trigger-${runnable.hashCode()}")
+        with(scheduleServerProperties) {
+            return ThreadPoolExecutor(
+                minSpareThreads,
+                maxThreads,
+                60L,
+                TimeUnit.SECONDS,
+                LinkedBlockingQueue(triggerQueueSize),
+            ) { runnable ->
+                Thread(runnable, "job-trigger-${runnable.hashCode()}")
+            }
         }
     }
 
