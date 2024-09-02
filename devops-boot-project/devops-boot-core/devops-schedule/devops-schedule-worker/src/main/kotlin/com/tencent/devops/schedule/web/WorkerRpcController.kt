@@ -11,22 +11,24 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping(WORKER_RPC_V1)
 class WorkerRpcController(
-    private val jobExecutor: JobExecutor
+    private val jobExecutor: JobExecutor,
 ) : WorkerRpcClient {
 
     @PostMapping(RPC_RUN_JOB)
-    override fun runJob(@RequestBody param: TriggerParam): ScheduleResponse {
-        return try {
+    override fun runJob(@RequestBody param: TriggerParam): Mono<ScheduleResponse> {
+        val result = try {
             jobExecutor.execute(param)
             ScheduleResponse.success()
         } catch (e: Exception) {
             logger.error("execute job[$param] error: ${e.message}", e)
             ScheduleResponse.failed(e.message.orEmpty())
         }
+        return Mono.just(result)
     }
 
     companion object {

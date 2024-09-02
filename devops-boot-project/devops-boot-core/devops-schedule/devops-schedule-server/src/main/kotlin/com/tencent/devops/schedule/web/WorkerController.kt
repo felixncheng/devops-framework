@@ -16,31 +16,32 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("$SERVER_BASE_PATH$SERVER_API_V1")
 class WorkerController(
-    private val workerManager: WorkerManager
+    private val workerManager: WorkerManager,
 ) {
     @PostMapping("/worker/group/create")
-    fun create(@RequestBody request: WorkerGroupCreateRequest): Response<String> {
-        return Response.success(workerManager.createGroup(request))
+    fun create(@RequestBody request: WorkerGroupCreateRequest): Mono<Response<String>> {
+        return Mono.just(Response.success(workerManager.createGroup(request)))
     }
 
     @GetMapping("/worker/group/list")
-    fun page(param: WorkerGroupQueryParam): Response<Page<WorkerGroup>> {
+    fun page(param: WorkerGroupQueryParam): Mono<Response<Page<WorkerGroup>>> {
         val page = workerManager.listGroupPage(param)
-        return Response.success(page)
+        return Mono.just(Response.success(page))
     }
 
     @GetMapping("/worker/group/names")
-    fun listNames(): Response<List<WorkerGroupName>> {
-        return Response.success(workerManager.listGroupName())
+    fun listNames(): Mono<Response<List<WorkerGroupName>>> {
+        return Mono.just(Response.success(workerManager.listGroupName()))
     }
 
     @DeleteMapping("/worker/group/delete")
-    fun deleteGroup(@RequestParam id: String): Response<Void> {
+    fun deleteGroup(@RequestParam id: String): Mono<Response<Void>> {
         workerManager.deleteWorkerGroup(id)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 }

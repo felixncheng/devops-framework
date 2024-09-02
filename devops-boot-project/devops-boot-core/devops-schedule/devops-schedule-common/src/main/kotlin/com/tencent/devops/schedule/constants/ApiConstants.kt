@@ -3,7 +3,7 @@ package com.tencent.devops.schedule.constants
 /**
  * server api
  */
-const val SERVER_BASE_PATH = "\${devops.schedule.server.context-path:/}"
+const val SERVER_BASE_PATH = "\${devops.schedule.server.context-path:}"
 const val SERVER_API_V1 = "/api/v1"
 const val SERVER_RPC_V1 = "/rpc/v1"
 const val RPC_SUBMIT_RESULT = "/job/submit"

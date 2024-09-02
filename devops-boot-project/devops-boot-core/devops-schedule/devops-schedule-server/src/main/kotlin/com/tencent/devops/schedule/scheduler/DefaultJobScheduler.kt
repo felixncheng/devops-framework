@@ -177,26 +177,27 @@ class DefaultJobScheduler(
         val latency = now - expectedTriggerTime
         logger.debug("trigger info -- now: $now, expected: $expectedTriggerTime ,latency: $latency")
         ScheduleServerMetrics.recordTrigger(latency, TimeUnit.MILLISECONDS)
-        try {
-            require(!address.isNullOrBlank()) { "没有可用的worker地址" }
-            triggerParam.workerAddress = address
-            val result = workerRpcClient.runJob(triggerParam)
-            jobLog.triggerCode = result.code
-            jobLog.triggerMsg = result.message
-            jobLog.executionCode = ExecutionCodeEnum.RUNNING.code()
-            logger.info("trigger job[${job.id}] success: $result")
-        } catch (e: Exception) {
-            logger.error("trigger job[${jobLog.jobId}] error: ${e.message}", e)
-            jobLog.triggerCode = TriggerCodeEnum.FAILED.code()
-            jobLog.triggerMsg = e.message
-        }
-        // 5. 保存结果
-        jobLog.workerAddress = address
-        jobLog.jobHandler = job.jobHandler
-        jobLog.jobParam = job.jobParam
-        jobLog.workerShardingParam = shardingParam
-        jobLog.workerRetryCount = retryCount
-        jobManager.updateJobLog(jobLog)
+        require(!address.isNullOrBlank()) { "没有可用的worker地址" }
+        triggerParam.workerAddress = address
+        workerRpcClient.runJob(triggerParam)
+            .doOnSuccess {
+                jobLog.triggerCode = it.code
+                jobLog.triggerMsg = it.message
+                jobLog.executionCode = ExecutionCodeEnum.RUNNING.code()
+                logger.info("trigger job[${job.id}] success: $it")
+            }.doOnError {
+                logger.error("trigger job[${jobLog.jobId}] error: ${it.message}", it)
+                jobLog.triggerCode = TriggerCodeEnum.FAILED.code()
+                jobLog.triggerMsg = it.message
+            }.doFinally {
+                // 5. 保存结果
+                jobLog.workerAddress = address
+                jobLog.jobHandler = job.jobHandler
+                jobLog.jobParam = job.jobParam
+                jobLog.workerShardingParam = shardingParam
+                jobLog.workerRetryCount = retryCount
+                jobManager.updateJobLog(jobLog)
+            }.subscribe()
     }
 
     /**

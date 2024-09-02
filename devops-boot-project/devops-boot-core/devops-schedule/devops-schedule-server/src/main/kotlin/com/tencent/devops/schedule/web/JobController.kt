@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("$SERVER_BASE_PATH$SERVER_API_V1")
@@ -26,48 +27,48 @@ class JobController(
 ) {
 
     @GetMapping("/job/list")
-    fun list(param: JobQueryParam): Response<Page<JobInfo>> {
-        return Response.success(jobManager.listJobPage(param))
+    fun list(param: JobQueryParam): Mono<Response<Page<JobInfo>>> {
+        return Mono.just(Response.success(jobManager.listJobPage(param)))
     }
 
     @PostMapping("/job/create")
-    fun create(@RequestBody request: JobCreateRequest): Response<String> {
-        return Response.success(jobManager.createJob(request))
+    fun create(@RequestBody request: JobCreateRequest): Mono<Response<String>> {
+        return Mono.just(Response.success(jobManager.createJob(request)))
     }
 
     @PostMapping("/job/update")
-    fun update(@RequestBody request: JobUpdateRequest): Response<Void> {
+    fun update(@RequestBody request: JobUpdateRequest): Mono<Response<Void>> {
         jobManager.updateJob(request)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 
     @DeleteMapping("/job/delete")
-    fun delete(@RequestParam id: String): Response<Void> {
+    fun delete(@RequestParam id: String): Mono<Response<Void>> {
         jobManager.deleteJob(id)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 
     @PostMapping("/job/stop")
-    fun stop(@RequestParam id: String): Response<Void> {
+    fun stop(@RequestParam id: String): Mono<Response<Void>> {
         jobManager.stopJob(id)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 
     @PostMapping("/job/start")
-    fun start(@RequestParam id: String): Response<Void> {
+    fun start(@RequestParam id: String): Mono<Response<Void>> {
         jobManager.startJob(id)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 
     @PostMapping("/job/trigger")
-    fun trigger(@RequestParam id: String, @RequestBody(required = false) executorParam: String?): Response<Void> {
+    fun trigger(@RequestParam id: String, @RequestBody(required = false) executorParam: String?): Mono<Response<Void>> {
         jobManager.triggerJob(id, executorParam)
-        return Response.success()
+        return Mono.just(Response.success())
     }
 
     @GetMapping("/log/list")
-    fun listLog(param: LogQueryParam): Response<Page<JobLog>> {
+    fun listLog(param: LogQueryParam): Mono<Response<Page<JobLog>>> {
         val page = jobManager.listLogPage(param)
-        return Response.success(page)
+        return Mono.just(Response.success(page))
     }
 }

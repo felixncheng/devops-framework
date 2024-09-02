@@ -13,23 +13,26 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("$SERVER_BASE_PATH$SERVER_RPC_V1")
 class ServerRpcController(
     private val jobManager: JobManager,
-    private val workerManager: WorkerManager
+    private val workerManager: WorkerManager,
 ) : ServerRpcClient {
 
     @PostMapping(RPC_SUBMIT_RESULT)
-    override fun submitResult(@RequestBody result: JobExecutionResult) {
+    override fun submitResult(@RequestBody result: JobExecutionResult): Mono<Void> {
         with(result) {
             jobManager.completeJob(logId.orEmpty(), code, message)
         }
+        return Mono.empty()
     }
 
     @PostMapping(RPC_HEART_BEAT)
-    override fun heartBeat(@RequestBody param: HeartBeatParam) {
+    override fun heartBeat(@RequestBody param: HeartBeatParam): Mono<Void> {
         workerManager.workerHeartbeat(param)
+        return Mono.empty()
     }
 }

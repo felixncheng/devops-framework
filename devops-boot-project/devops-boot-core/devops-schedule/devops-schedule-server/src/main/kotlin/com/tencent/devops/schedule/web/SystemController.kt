@@ -28,45 +28,46 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("$SERVER_BASE_PATH$SERVER_API_V1")
 class SystemController(
-    scheduleServerProperties: ScheduleServerProperties
+    scheduleServerProperties: ScheduleServerProperties,
 ) {
     private val authProperties = scheduleServerProperties.auth
     private val signingKey = JwtUtils.createSigningKey(authProperties.secretKey)
 
     @ResponseBody
     @GetMapping("/dict/{name}")
-    fun dict(@PathVariable name: String): Response<*> {
-        return Response.success(SYSTEM_DICT[name])
+    fun dict(@PathVariable name: String): Mono<Response<*>> {
+        return Mono.just(Response.success(SYSTEM_DICT[name]))
     }
 
     @PostMapping("/user/login")
-    fun login(@RequestBody request: UserLoginRequest): Response<*> {
+    fun login(@RequestBody request: UserLoginRequest): Mono<Response<*>> {
         return if (tryLogin(request)) {
             val token = JwtUtils.generateToken(signingKey, authProperties.expiration, request.username)
-            Response.success(TokenInfo(token))
+            Mono.just(Response.success(TokenInfo(token)))
         } else {
-            Response.fail(HttpStatus.UNAUTHORIZED.value(), "认证失败")
+            Mono.just(Response.fail(HttpStatus.UNAUTHORIZED.value(), "认证失败"))
         }
     }
 
     @GetMapping("/user/info")
-    fun info(@RequestParam token: String): Response<*> {
+    fun info(@RequestParam token: String): Mono<Response<*>> {
         return try {
             val username = JwtUtils.validateToken(signingKey, token).body.subject
             val userInfo = UserInfo(name = username)
-            Response.success(userInfo)
+            Mono.just(Response.success(userInfo))
         } catch (e: Exception) {
-            Response.fail(HttpStatus.BAD_REQUEST.value(), "非法token")
+            Mono.just(Response.fail(HttpStatus.BAD_REQUEST.value(), "非法token"))
         }
     }
 
     @PostMapping("/user/logout")
-    fun logout(): Response<Void> {
-        return Response.success()
+    fun logout(): Mono<Response<Void>> {
+        return Mono.just(Response.success())
     }
 
     private fun tryLogin(request: UserLoginRequest): Boolean {

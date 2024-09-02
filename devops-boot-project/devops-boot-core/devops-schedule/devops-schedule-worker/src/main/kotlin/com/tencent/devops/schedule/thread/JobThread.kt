@@ -56,7 +56,7 @@ class JobThread(
                     logger.info("complete job log[$logId]: $result")
                     // 上报任务结果
                     try {
-                        serverRpcClient.submitResult(result)
+                        serverRpcClient.submitResult(result).subscribe()
                         logger.info("submit job log[$logId] result success")
                     } catch (e: Exception) {
                         logger.error("submit job log[$logId] result error: ${e.message}", e)

@@ -1,15 +1,14 @@
 package com.tencent.devops.schedule.config
 
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.reactive.config.ResourceHandlerRegistry
+import org.springframework.web.reactive.config.WebFluxConfigurer
 
 /**
  * Schedule server ui访问配置
  */
 class ScheduleServerWebUiConfigurer(
-    scheduleServerProperties: ScheduleServerProperties
-) : WebMvcConfigurer {
+    scheduleServerProperties: ScheduleServerProperties,
+) : WebFluxConfigurer {
 
     private val contextPath = scheduleServerProperties.contextPath.trimEnd('/')
 
@@ -19,10 +18,10 @@ class ScheduleServerWebUiConfigurer(
             .resourceChain(false)
     }
 
-    override fun addViewControllers(registry: ViewControllerRegistry) {
-        registry.addViewController("$contextPath/")
-            .setViewName("redirect:$contextPath/ui/")
-        registry.addViewController("$contextPath/ui/")
-            .setViewName("forward:$contextPath/ui/index.html")
-    }
+    /*    override fun addViewControllers(registry: ViewControllerRegistry) {
+            registry.addViewController("$contextPath/")
+                .setViewName("redirect:$contextPath/ui/")
+            registry.addViewController("$contextPath/ui/")
+                .setViewName("forward:$contextPath/ui/index.html")
+        }*/
 }

@@ -14,8 +14,8 @@ import java.net.UnknownHostException
 
 class DefaultHeartbeat(
     private val workerProperties: ScheduleWorkerProperties,
-    private val serverRpcClient: ServerRpcClient
-): AbstractHeartbeat() {
+    private val serverRpcClient: ServerRpcClient,
+) : AbstractHeartbeat() {
 
     @Value("\${spring.application.name: application}")
     private var application: String = ""
@@ -39,7 +39,6 @@ class DefaultHeartbeat(
                 .append(":")
                 .append(port)
             address = builder.toString()
-
         }
         super.afterPropertiesSet()
     }
@@ -49,9 +48,9 @@ class DefaultHeartbeat(
             val param = HeartBeatParam(
                 group = group,
                 address = address,
-                status = status.code()
+                status = status.code(),
             )
-            serverRpcClient.heartBeat(param)
+            serverRpcClient.heartBeat(param).subscribe()
             logger.debug("update worker status[$status] success.")
         } catch (e: Exception) {
             logger.error("update worker status[$status] error: ${e.message}", e)
