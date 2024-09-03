@@ -1,5 +1,5 @@
 plugins {
-    id("com.tencent.devops.boot") version File("../version.txt").readText().trim()
+    id("com.tencent.devops.boot") version "0.0.10-SNAPSHOT"
 }
 
 allprojects {

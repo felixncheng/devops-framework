@@ -26,12 +26,6 @@ class ScheduleServerRpcAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun webClientBuilder(): WebClient.Builder {
-        return WebClient.builder()
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
     fun serverRpcClient(
         scheduleWorkerProperties: ScheduleServerProperties,
         @Qualifier(WORKER_WEB_CLIENT)

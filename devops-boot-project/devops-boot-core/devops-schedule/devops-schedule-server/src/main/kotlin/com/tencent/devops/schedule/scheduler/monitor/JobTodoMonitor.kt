@@ -93,6 +93,7 @@ open class JobTodoMonitor(
                 return count
             }
             val now = System.currentTimeMillis()
+            // todo 要加限制
             val jobs = jobManager.findTodoJobs(now + PRE_LOAD_TIME)
             count = jobs.size
             for (job in jobs) {
@@ -107,6 +108,7 @@ open class JobTodoMonitor(
                     // 还未到执行时间，time-ring 触发
                     pushTimeRingJob(job)
                 }
+                // todo 频繁更新
                 jobManager.updateJobSchedule(job)
             }
         } catch (e: Exception) {
